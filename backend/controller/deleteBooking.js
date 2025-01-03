@@ -11,12 +11,15 @@ const deleteBooking = async (booking) => {
 
     const { id } = booking;
 
+  
+    
+
     const query = `DELETE FROM bookings WHERE id = ?`;
     const result = await db.query(query,[id])
+   
+    const affectedRows = result[0].affectedRows;
 
-       
-
-    if (result[1] === undefined || result[1] === null) {
+    if (affectedRows === 0) {
         console.log("No ID exists with that booking");
         return false;
     }
