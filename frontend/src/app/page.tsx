@@ -25,6 +25,7 @@ export default function Home() {
   
 
 
+
   const handleBookingData = (data :any) => {
     setBookingData(data); // Update the state with the received booking data
   };

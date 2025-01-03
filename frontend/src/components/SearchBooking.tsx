@@ -14,7 +14,7 @@ import { ToastAction } from "./ui/toast";
 import { toast } from "@/hooks/use-toast";
 
 interface SearchBookingProps {
-  onBookingData: (data: any) => void; // Define the prop type for the callback
+  onBookingData: (data: any) => void; 
 }
 
 const SearchBooking = ({onBookingData} : SearchBookingProps) => {
