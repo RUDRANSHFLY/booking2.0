@@ -22,10 +22,14 @@ interface BookingProp{
     check_in_time : string,
     check_out_time: string,
     customer_name : string,
-    guest_count : Number,
+    guest_count : number,
 }
 
-const BookingCalendar = () => {
+interface BookingCalendarProps {
+  refresh: boolean; // Define the type for the refresh prop
+}
+
+const BookingCalendar = ({ refresh } : BookingCalendarProps) => {
     const [bookings, setBookings] = useState<BookingProp[]>([])
 
     useEffect(() => {
@@ -38,7 +42,7 @@ const BookingCalendar = () => {
         }    
         fetchBookings()
     
-    }, [])
+    }, [refresh])
     
 
     const events = bookings?.map(booking => ({

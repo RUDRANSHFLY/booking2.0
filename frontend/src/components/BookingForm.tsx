@@ -14,9 +14,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import { useRouter } from "next/navigation";
+import { ToastAction } from "./ui/toast";
 
-const BookingForm = () => {
-  const [checkInTime, setCheckInTime] = useState("");
+
+interface BookingFormProps {
+  onNewPatientAdded: () => void; // Define the type for the callback function
+}
+
+const BookingForm = ({ onNewPatientAdded } : BookingFormProps) => {
+  const router = useRouter();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { toast } = useToast();
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -26,7 +34,8 @@ const BookingForm = () => {
   const checkOutTimeRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    // event.preventDefault();
+    event.preventDefault();
+    
 
     const startDate = new Date(checkInTimeRef.current?.value as string);
     const formattedStarDate = `${startDate.getFullYear()}-${String(
@@ -57,18 +66,40 @@ const BookingForm = () => {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const endpoint = `${BASE_URL}/booking`;
 
-    const booking = await axios.post(endpoint, bookingData);
-    if (booking) {
-      console.log(booking);
-      toast({
-        title: "Booking Created",
-      });
+    try {
+      const booking = await axios.post(endpoint, bookingData);
+      if (booking) {
+        console.log(booking);
+        toast({
+          title: "Booking Deleted",
+        });
+        onNewPatientAdded();
+        setIsSheetOpen(false); 
+        router.refresh();
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        toast({
+          variant: "destructive",
+          title: "Already Reserved",
+          description: "The selected time slot is already reserved.",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+      } else {
+        // Handle other errors
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred.",
+        });
+      }
     }
   };
 
   return (
-    <Sheet>
-      <SheetTrigger className={"bg-black text-white px-3 py-1 "}>Add Booking</SheetTrigger>
+    <Sheet  open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <SheetTrigger className={"bg-black text-white px-3 py-1 "}>
+        Add Booking
+      </SheetTrigger>
       <SheetContent side={"top"} className={"w-fit mx-auto"}>
         <div className={"border-2 border-l-cyan-50 mb-5"}>
           <form

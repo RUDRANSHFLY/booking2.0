@@ -1,4 +1,3 @@
-"use client";
 import React, { FormEvent, useRef, useState } from "react";
 import {
   Sheet,
@@ -7,36 +6,41 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import axios from "axios";
-import { ToastAction } from "./ui/toast";
+import { Input } from "./ui/input";
 import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "./ui/toast";
+import axios from "axios";
 
-interface SearchBookingProps {
-  onBookingData: (data: any) => void; // Define the prop type for the callback
+interface DeleteFormProps {
+  onNewPatientDelete: () => void; // Define the type for the callback function
 }
 
-const SearchBooking = ({onBookingData} : SearchBookingProps) => {
+const DeleteBooking = ({ onNewPatientDelete }: DeleteFormProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const id = nameRef.current?.value;
+    console.log(id);
+
     try {
-      
       const endpoint = `${BASE_URL}/booking/${id}`;
-      const res = await axios.get(endpoint)
-      const data = await res.data ;
-      onBookingData(data)
+      const res = await axios.delete(endpoint);
+      const data = await res.data;
+      console.log(data);
+
+      onNewPatientDelete()
       setIsSheetOpen(false)
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 409) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
         toast({
           variant: "destructive",
           title: "We couldn't find a booking",
-          description: "The Booking ID you entered does not match any existing records. Please check the ID and try again.",
+          description:
+            "The Booking ID you entered does not match any existing records. Please check the ID and try again.",
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       } else {
@@ -46,14 +50,15 @@ const SearchBooking = ({onBookingData} : SearchBookingProps) => {
           description: "An unexpected error occurred.",
         });
       }
+    }finally{
+      setIsSheetOpen(false)
     }
-    
   };
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger className={"bg-black text-white px-3 py-1 "}>
-        Search Booking
+        Delete Booking
       </SheetTrigger>
       <SheetContent side={"top"} className={"w-fit mx-auto"}>
         <div className={"border-2 border-l-cyan-50 mb-5"}>
@@ -65,7 +70,7 @@ const SearchBooking = ({onBookingData} : SearchBookingProps) => {
             }
           >
             <SheetHeader>
-              <SheetTitle>Serach your Booking</SheetTitle>
+              <SheetTitle>Delete your Booking</SheetTitle>
             </SheetHeader>
 
             <Input
@@ -81,9 +86,8 @@ const SearchBooking = ({onBookingData} : SearchBookingProps) => {
               name={"submit"}
               type={"submit"}
               className={"w-fit mx-auto"}
-             
             >
-              Search
+              Delete
             </Button>
           </form>
         </div>
@@ -92,4 +96,4 @@ const SearchBooking = ({onBookingData} : SearchBookingProps) => {
   );
 };
 
-export default SearchBooking;
+export default DeleteBooking;
